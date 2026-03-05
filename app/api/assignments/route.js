@@ -1,22 +1,36 @@
 import { assignments } from "@/lib/data";
 
+// GET all assignments
 export async function GET() {
   return Response.json(assignments);
 }
 
+// CREATE assignment
 export async function POST(request) {
-  const body = await request.json();
+
+  let body;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { message: "Body must be valid JSON" },
+      { status: 400 }
+    );
+  }
 
   if (!body.title || !body.description) {
     return Response.json(
-      { message: "Title and Description are required" },
+      { message: "title and description required" },
       { status: 400 }
     );
   }
 
   const newAssignment = {
     id: assignments.length + 1,
-    ...body
+    title: body.title,
+    description: body.description,
+    dueDate: body.dueDate || null
   };
 
   assignments.push(newAssignment);

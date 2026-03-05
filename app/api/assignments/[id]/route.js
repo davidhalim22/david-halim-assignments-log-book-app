@@ -1,7 +1,10 @@
 import { assignments } from "@/lib/data";
 
-export async function GET(request, { params }) {
-  const id = parseInt(params.id);
+// GET assignment by id
+export async function GET(request, context) {
+
+  const params = await context.params;
+  const id = Number(params.id);
 
   const assignment = assignments.find(a => a.id === id);
 
@@ -15,9 +18,23 @@ export async function GET(request, { params }) {
   return Response.json(assignment);
 }
 
-export async function PUT(request, { params }) {
-  const id = parseInt(params.id);
-  const body = await request.json();
+
+// UPDATE assignment
+export async function PUT(request, context) {
+
+  const params = await context.params;
+  const id = Number(params.id);
+
+  let body;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json(
+      { message: "Body must be valid JSON" },
+      { status: 400 }
+    );
+  }
 
   const index = assignments.findIndex(a => a.id === id);
 
@@ -28,13 +45,20 @@ export async function PUT(request, { params }) {
     );
   }
 
-  assignments[index] = { ...assignments[index], ...body };
+  assignments[index] = {
+    ...assignments[index],
+    ...body
+  };
 
   return Response.json(assignments[index]);
 }
 
-export async function DELETE(request, { params }) {
-  const id = parseInt(params.id);
+
+// DELETE assignment
+export async function DELETE(request, context) {
+
+  const params = await context.params;
+  const id = Number(params.id);
 
   const index = assignments.findIndex(a => a.id === id);
 
@@ -47,5 +71,8 @@ export async function DELETE(request, { params }) {
 
   const deleted = assignments.splice(index, 1);
 
-  return Response.json(deleted[0]);
+  return Response.json({
+    message: "Assignment deleted",
+    data: deleted[0]
+  });
 }
